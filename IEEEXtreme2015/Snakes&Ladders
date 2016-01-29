@@ -1,0 +1,128 @@
+import java.util.*;
+
+class Solution{
+	public static void main(String[] args) {
+		Scanner sc=new Scanner(System.in);
+		int n=sc.nextInt();
+		boolean asc=true;
+		int tabsize=n*n;
+		int tab[]=new int[tabsize+1];
+		int space=0;
+		Arrays.fill(tab,0);
+		ArrayList<Integer> g=new ArrayList<Integer>();
+		sc.nextLine();
+		for(int i=1;i<=n;i++){
+			String line=sc.nextLine();
+			for(int j=1;j<=n;j++){
+				if(asc)
+					space=tabsize-(i*n)+j;
+				else
+					space=(tabsize-(i-1)*n-j)+1;
+				char read=line.charAt(j-1);
+				//System.out.println("I read a "+read+" at position "+space);
+				//ponerle -2 si es serpiente
+				if(read>='a'&&read<='z')
+					tab[space]=(int)read;
+					//ponerle -3 si es un conejo
+				else if(read>='0'&&read<='9')
+					tab[space]=(int)read;
+			}
+			if(asc)
+				asc=false;
+			else
+				asc=true;
+		}
+		/*for(int i=1;i<=tabsize;i++)
+			System.out.println("posicion "+i+": "+tab[i]);*/
+		for(int i=1;i<=tabsize;i++){
+			//insertamos serpiente
+			if(tab[i]>=(int)'a'&&tab[i]<=(int)'z'&&!g.contains(tab[i])) {
+				for(int j=i+1;j<=tabsize;j++){
+					if(tab[j]==tab[i]){
+						tab[j]=i-j;
+						g.add(i-j);
+						tab[i]=0;
+						break;
+					}
+				}
+				
+			}
+			
+		}
+		for(int i=1;i<=tabsize;i++){
+			if(tab[i]>=(int)'0'&&tab[i]<='9'&&!g.contains(tab[i])){
+				for(int j=i+1;j<=tabsize;j++){
+					if(tab[j]==tab[i]){
+						tab[i]=j-i;
+						g.add(j-i);
+						tab[j]=0;
+						break;
+					}
+				}
+			}
+		}
+		/*for(int i=1;i<=tabsize;i++)
+			System.out.println("posicion "+i+": "+tab[i]);*/
+		//MODELADO DE LOS PASOS
+		int m=sc.nextInt();
+		int jug[]=new int[m];
+		Arrays.fill(jug,0);
+		short ocupado[]=new short[tabsize+1];
+		Arrays.fill(ocupado,(short)0);
+		int jA=0;
+		//System.out.println("going into the while");
+		while(sc.hasNext()){
+			int a=sc.nextInt();
+			int b=sc.nextInt();
+			int c=0;
+			if(a==b)
+				c=sc.nextInt();
+			int espad=0;
+			jug[jA]+=(a+b+c);
+			ocupado[jug[jA]]++;
+			while(ocupado[jug[jA]]>1){
+				ocupado[jug[jA]]--;
+				jug[jA]++;
+				ocupado[jug[jA]]++;
+			}
+			if(gameOver(jug[jA],tabsize))
+				break;
+			//System.out.println("third while");
+			int evilloop=0;
+			while(tab[jug[jA]]!=0||ocupado[jug[jA]]>1){
+				//System.out.println("I entered the while!");
+				while(ocupado[jug[jA]]>1){
+					ocupado[jug[jA]]--;
+					jug[jA]++;
+					ocupado[jug[jA]]++;
+				}
+				if(tab[jug[jA]]!=0){
+					//System.out.println("If condition is true.");
+					ocupado[jug[jA]]--;
+					int amover=tab[jug[jA]];
+					jug[jA]+=(amover);
+					ocupado[jug[jA]]++;
+				}
+				evilloop++;
+				if(evilloop>100){
+					System.out.println("PLAYER "+(jA+1)+" WINS BY EVIL CYCLE!");
+					System.exit(0);
+				}
+			}
+			if(gameOver(jug[jA],tabsize))
+				break;
+			//System.out.println("Player "+(jA+1)+" is at position "+jug[jA]);
+			jA++;
+			if(jA==m)
+				jA=0;
+		}
+		for(int i=0;i<m;i++)
+			System.out.print(jug[i]+" ");
+		System.out.println();
+	}
+	public static boolean gameOver(int pos, int end){
+		if(pos>=end)
+			return true;
+		return false;
+	}
+}
