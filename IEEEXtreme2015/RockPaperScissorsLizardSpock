@@ -1,0 +1,205 @@
+import java.io.*;
+import java.util.*;
+import java.text.*;
+import java.math.*;
+import java.util.regex.*;
+
+
+enum Movement{Rock, Paper, Scissors, Lizard, Spock}
+enum Winner{Alice, Bob, Tie}
+
+public class Javita2 {
+
+
+	public static Winner winner(Movement bob, Movement alice){
+		if(bob == alice)
+			return Winner.Tie;
+
+		if(bob == Movement.Scissors && (alice == Movement.Paper || alice == Movement.Lizard))
+			return Winner.Bob;
+
+		if(bob == Movement.Paper && (alice == Movement.Rock || alice == Movement.Spock))
+			return Winner.Bob;
+
+		if(bob == Movement.Rock && (alice == Movement.Scissors || alice == Movement.Lizard))
+			return Winner.Bob;
+
+		if(bob == Movement.Lizard && (alice == Movement.Paper || alice == Movement.Spock))
+			return Winner.Bob;
+
+		if(bob == Movement.Spock && (alice == Movement.Rock || alice == Movement.Scissors))
+			return Winner.Bob;
+
+		return Winner.Alice;
+	}
+
+	public static Movement getMovement(String s){
+		if(s.equals("Rock"))
+			return Movement.Rock;
+		if(s.equals("Paper"))
+			return Movement.Paper;
+		if(s.equals("Scissors"))
+			return Movement.Scissors;
+		if(s.equals("Lizard"))
+			return Movement.Lizard;
+
+		return Movement.Spock;
+	}
+
+	public static Movement getNextAlice(Movement m, Winner w, Movement bob){
+
+		if(w == Winner.Alice)
+			return m;
+
+		if(bob == Movement.Rock)
+			return Movement.Paper;
+
+		if(bob == Movement.Paper)
+			return Movement.Scissors;
+
+		if(bob == Movement.Scissors)
+			return Movement.Spock;
+
+		if(bob == Movement.Spock)
+			return Movement.Lizard;
+
+
+		return Movement.Rock;
+	}
+
+	public static Movement getNextBob(Movement m, Winner w){
+		if(m != Movement.Spock)
+			return Movement.Spock;
+
+		if(w == Winner.Alice)
+			return Movement.Paper;
+		if( w == Winner.Bob)
+			return Movement.Rock;
+
+		return Movement.Lizard;
+	}
+
+	public static void main(String[] args) {
+		Scanner sc=new Scanner(System.in);
+		int t =sc.nextInt();
+		while(t-- != 0){
+			Movement AliceShape=getMovement(sc.next());
+			Movement BobShape=getMovement(sc.next());
+
+			long n=sc.nextLong();
+			long AliceWinGames=0;
+			long BobWinGames=0;
+			long tieGames=0;
+
+			Winner w=Winner.Bob;
+			boolean flag=false;
+			if(n<5000){
+				if((BobShape==Movement.Spock||BobShape==Movement.Paper)&&AliceShape==Movement.Lizard){
+					AliceWinGames+=n;
+				}
+				else{
+					while(n--!=0){
+					/*if(BobShape==Movement.Paper&&AliceShape==Movement.Paper){
+						while(n+1%4!=0){
+							
+							w = winner(BobShape,AliceShape);
+							//System.out.println(AliceShape + " " + BobShape + " "  + w+" (in while loop)");
+							if(w ==  Winner.Bob)
+								BobWinGames++;
+							else if(w == Winner.Alice)
+								AliceWinGames++;
+							else
+								tieGames++;
+							n--;
+                            AliceShape = getNextAlice(AliceShape, w, BobShape);
+							BobShape = getNextBob(BobShape, w);
+						}
+						AliceWinGames+=n/4;
+						tieGames+=n/4;
+						BobWinGames+=n/2;
+						break;
+					}*/
+					w = winner(BobShape,AliceShape);
+					//System.out.println(AliceShape + " " + BobShape + " "  + w);
+					if(w ==  Winner.Bob)
+						BobWinGames++;
+					else if(w == Winner.Alice)
+						AliceWinGames++;
+					else
+						tieGames++;
+
+					AliceShape = getNextAlice(AliceShape, w, BobShape);
+					BobShape = getNextBob(BobShape, w);
+				}
+			}
+		}
+		else{
+			if((BobShape==Movement.Spock||BobShape==Movement.Paper)&&AliceShape==Movement.Lizard){
+				AliceWinGames+=n;
+			}
+			
+			else{
+				while(n--!=0){
+					if(BobShape==Movement.Paper&&AliceShape==Movement.Paper){
+						flag=true;
+						if(n<=4)
+							flag=false;
+						while((n+1)%4!=0){
+							w = winner(BobShape,AliceShape);
+							//System.out.println(AliceShape + " " + BobShape + " "  + w+" (in while loop)");
+							if(w ==  Winner.Bob)
+								BobWinGames++;
+							else if(w == Winner.Alice)
+								AliceWinGames++;
+							else
+								tieGames++;
+							n--;
+							AliceShape = getNextAlice(AliceShape, w, BobShape);
+							BobShape = getNextBob(BobShape, w);
+						}
+						AliceWinGames+=n/4;
+						tieGames+=n/4;
+						BobWinGames+=n/2;
+						break;
+					}
+					w = winner(BobShape,AliceShape);
+					//System.out.println(AliceShape + " " + BobShape + " "  + w);
+					if(w ==  Winner.Bob)
+						BobWinGames++;
+					else if(w == Winner.Alice)
+						AliceWinGames++;
+					else
+						tieGames++;
+
+					AliceShape = getNextAlice(AliceShape, w, BobShape);
+					BobShape = getNextBob(BobShape, w);
+				}
+
+			}
+			if(flag){
+				AliceWinGames++;
+				BobWinGames++;
+				if(tieGames!=0)
+					tieGames++;
+			}
+		}
+		if(AliceWinGames==BobWinGames){
+			System.out.println("Alice and Bob tie, each winning "+AliceWinGames+" game(s) and tying "+tieGames+" game(s)");
+		}
+		else{
+			String winner;
+			long winGames;
+			if(AliceWinGames>BobWinGames){
+				winner="Alice";
+				winGames=AliceWinGames;
+			}
+			else{
+				winner="Bob";
+				winGames=BobWinGames;
+			}
+			System.out.println(winner+" wins, by winning "+winGames+" game(s) and tying "+tieGames+" game(s)");
+		}
+	}
+
+}
+}
